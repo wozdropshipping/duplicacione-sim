@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "cliente": "Cliente Ejemplo",
+    "email": "cliente@ejemplo.com",
+    "fecha": "2025-11-12T10:30:00Z",
+    "mensaje": "Hola, estoy interesado en el plan Full Privado. ¿Podrías darme más información?",
+    "comprobante": null,
+    "estado": "pendiente",
+    "respuesta": null
+  }
+]

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | NumStore Admin</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <h2>NumStore</h2>
+    <ul>
+      <li data-section="compras" class="active">
+        Compras <span id="contador-compras" class="contador-badge">0</span>
+      </li>
+      <li data-section="mensajes">
+        Mensajes <span id="contador-mensajes" class="contador-badge">0</span>
+      </li>
+      <li data-section="planes">Planes</li>
+      <li data-section="consultas">
+        Consultas <span id="contador-consultas" class="contador-badge">0</span>
+      </li>
+      <li data-section="numeros">Números</li>
+      <li id="logout">Cerrar sesión</li>
+    </ul>
+  </aside>
+
+  <main class="main-content">
+    <section id="compras" class="section visible">
+      <h3>Compras pendientes</h3>
+      <table id="tabla-compras">
+        <thead>
+          <tr><th>Cliente</th><th>Plan</th><th>Monto</th><th>Estado</th><th>Comprobante</th><th>Acción</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Ejemplo</td><td>Full</td><td>Gs. 250.000</td><td>Pendiente</td><td><img src="uploads/sample.png" width="40"></td><td><button>Ver</button></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="mensajes" class="section">
+      <h3>Mensajes</h3>
+      <div id="chat-container"></div>
+    </section>
+
+    <section id="planes" class="section">
+      <h3>Gestión de Planes</h3>
+      <button id="nuevoPlan">+ Nuevo Plan</button>
+      <div id="lista-planes"></div>
+    </section>
+
+    <section id="consultas" class="section">
+      <h3>Consultas recibidas</h3>
+      <div class="consultas-header">
+        <button id="marcarTodasLeidas" class="btn-marcar-leidas">Marcar todas como leídas</button>
+        <button id="exportarConsultas" class="btn-exportar">Exportar consultas</button>
+        <button id="limpiarConsultas" class="btn-limpiar">Limpiar consultas</button>
+      </div>
+      <div id="consultas-lista"></div>
+    </section>
+
+    <section id="numeros" class="section">
+      <h3>Números generados</h3>
+      <ul id="numeros-lista"></ul>
+    </section>
+  </main>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,292 @@
+/* main.js — lógica del landing: cargar planes, buscar números, compra, chat.
+   Depende de data.js (window.dataStore, window.dataAddVenta, window.dataAddMensaje)
+*/
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Elementos clave
+  const listaPlanesEl = document.getElementById("lista-planes");
+  const duracionBuscar = document.getElementById("duracionBuscar");
+  const planAnonimoSelect = document.getElementById("planAnonimo");
+  const formBuscar = document.getElementById("form-buscar");
+  const resultadosEl = document.getElementById("resultados");
+  const formAnonimo = document.getElementById("form-anonimo");
+  const chatBox = document.getElementById("chat-box");
+  const formChat = document.getElementById("form-chat");
+  const msgInput = document.getElementById("msgUsuario");
+  const modal = document.getElementById("modal");
+  const modalBackdrop = document.getElementById("modal-backdrop");
+  const modalClose = document.getElementById("modal-close");
+  const modalContent = document.getElementById("modal-content");
+  const modalForm = document.getElementById("modal-form");
+  const modalEmail = document.getElementById("modal-email");
+  const modalMetodo = document.getElementById("modal-metodo");
+
+  let currentOffer = null; // {numero, planId, precio, duracionDias}
+
+  // Inicializar UI
+  renderPlanes();
+  populateDurations();
+  populatePlanAnonimo();
+  renderChat();
+
+  // Navegación rápida botones
+  document.getElementById("ir-a-buscar").addEventListener("click", () => location.hash = "#buscar");
+  document.getElementById("ir-a-planes").addEventListener("click", () => location.hash = "#planes");
+  document.getElementById("btn-comprar-top").addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    location.hash = "#planes";
+  });
+
+  // RENDER PLANES
+  function renderPlanes() {
+    listaPlanesEl.innerHTML = "";
+    const planes = window.dataStore.planes || [];
+    planes.forEach(p => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <div>
+          <h3>${escapeHtml(p.nombre)}</h3>
+          <p class="muted">${escapeHtml(p.duracionTexto)}</p>
+        </div>
+        <div style="margin-top:auto">
+          <div class="price"><span class="muted">USD</span> <strong>$${Number(p.precio).toFixed(2)}</strong></div>
+          <div class="muted" style="font-size:0.9rem">${escapeHtml(p.ahorro)}</div>
+          <div style="margin-top:0.6rem">
+            <button class="btn btn-primary btn-comprar-plan" data-planid="${p.id}">Comprar este plan</button>
+          </div>
+        </div>
+      `;
+      listaPlanesEl.appendChild(card);
+    });
+
+    // eventos comprar plan
+    document.querySelectorAll(".btn-comprar-plan").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const planId = Number(e.currentTarget.dataset.planid);
+        const plan = window.dataStore.planes.find(x => x.id === planId);
+        // Generar número simulado inmediato
+        const numeros = window.generarNumerosSimulados('us', null, 1);
+        abrirModalCompra({
+          numero: numeros[0] || "+10000000000",
+          planId: plan.id,
+          precio: plan.precio,
+          duracionDias: plan.duracionDias,
+          planNombre: plan.nombre
+        });
+      });
+    });
+  }
+
+  // POPULAR DURACIONES SELECT BUSCAR
+  function populateDurations() {
+    duracionBuscar.innerHTML = "";
+    (window.dataStore.planes || []).forEach(p => {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = p.duracionTexto + " — $" + Number(p.precio).toFixed(2);
+      duracionBuscar.appendChild(opt);
+    });
+  }
+
+  // POPULAR PLAN SELECION ANONIMO
+  function populatePlanAnonimo() {
+    planAnonimoSelect.innerHTML = "";
+    (window.dataStore.planes || []).forEach(p => {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = `${p.nombre} — ${p.duracionTexto} — $${Number(p.precio).toFixed(2)}`;
+      planAnonimoSelect.appendChild(opt);
+    });
+  }
+
+  // BUSCAR NÚMEROS (simulado)
+  formBuscar.addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    const pais = document.getElementById("pais").value;
+    const planId = Number(duracionBuscar.value);
+    const patron = document.getElementById("patron").value.trim();
+    resultadosEl.innerHTML = `<div class="muted">Buscando números…</div>`;
+
+    setTimeout(() => {
+      const numeros = window.generarNumerosSimulados(pais, patron || null, 6);
+      if (!numeros.length) {
+        resultadosEl.innerHTML = `<div class="muted">No se encontraron números con ese patrón.</div>`;
+        return;
+      }
+      resultadosEl.innerHTML = numeros.map(n => `
+        <div class="result-item">
+          <div class="meta">
+            <div><strong>${escapeHtml(n)}</strong></div>
+            <div class="muted">Plan: ${escapeHtml(getPlanById(planId)?.nombre || '—')}</div>
+          </div>
+          <div>
+            <button class="btn btn-primary btn-comprar-num" data-num="${encodeURIComponent(n)}" data-plan="${planId}">Comprar</button>
+          </div>
+        </div>
+      `).join("");
+
+      document.querySelectorAll(".btn-comprar-num").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          const numero = decodeURIComponent(e.currentTarget.dataset.num);
+          const planId = Number(e.currentTarget.dataset.plan);
+          const plan = getPlanById(planId);
+          abrirModalCompra({
+            numero,
+            planId: plan.id,
+            precio: plan.precio,
+            duracionDias: plan.duracionDias,
+            planNombre: plan.nombre
+          });
+        });
+      });
+
+    }, 450); // simulación
+  });
+
+  // COMPRA ANÓNIMA
+  formAnonimo.addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    const email = document.getElementById("emailAnonimo").value.trim();
+    const planId = Number(planAnonimoSelect.value);
+    if (!email) return alert("Ingresa un correo válido.");
+    const plan = getPlanById(planId);
+    // generar número aleatorio
+    const numero = window.generarNumerosSimulados('mx', null, 1)[0] || "+000000000";
+    // abrir modal con datos pre-llenados
+    abrirModalCompra({
+      numero,
+      planId: plan.id,
+      precio: plan.precio,
+      duracionDias: plan.duracionDias,
+      planNombre: plan.nombre,
+      prefillEmail: email,
+      anonimo: true
+    });
+  });
+
+  // MODAL: abrir
+  function abrirModalCompra(offer) {
+    currentOffer = offer;
+    modalContent.innerHTML = `
+      <p><strong>Número:</strong> ${escapeHtml(offer.numero)}</p>
+      <p><strong>Plan:</strong> ${escapeHtml(offer.planNombre)} — ${escapeHtml(offer.duracionDias + " días")}</p>
+      <p><strong>Precio:</strong> USD $${Number(offer.precio).toFixed(2)}</p>
+    `;
+    modalEmail.value = offer.prefillEmail || "";
+    modalMetodo.value = "card";
+    modal.setAttribute("aria-hidden", "false");
+  }
+
+  // MODAL cerrar
+  function cerrarModal() {
+    modal.setAttribute("aria-hidden", "true");
+    currentOffer = null;
+  }
+  modalBackdrop.addEventListener("click", cerrarModal);
+  modalClose.addEventListener("click", cerrarModal);
+
+  // Modal confirmar compra
+  modalForm.addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    if (!currentOffer) return;
+    const email = modalEmail.value.trim();
+    const metodo = modalMetodo.value;
+    if (!email) return alert("Ingresa un correo válido.");
+
+    // crear venta
+    const now = new Date();
+    const fechaCompra = now.toISOString();
+    const fechaExpira = new Date(now.getTime() + currentOffer.duracionDias * 24 * 60 * 60 * 1000).toISOString();
+    const venta = {
+      email,
+      planId: currentOffer.planId,
+      numero: currentOffer.numero,
+      fechaCompra,
+      fechaExpira,
+      anonimo: !!currentOffer.anonimo,
+      metodoPago: metodo
+    };
+    window.dataAddVenta(venta);
+    // Mensaje de chat automático del sistema
+    window.dataAddMensaje({ from: "admin", text: `Compra confirmada: ${currentOffer.numero} para ${email}`, time: new Date().toISOString() });
+    window.dataSave();
+
+    cerrarModal();
+    alert("Compra completada. Revisa tu correo para detalles (simulado).");
+    renderPlanes();
+    renderChat();
+  });
+
+  // CHAT: enviar mensaje del usuario
+  formChat.addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    const text = msgInput.value.trim();
+    if (!text) return;
+    const msg = { from: "usuario", text, time: new Date().toISOString() };
+    window.dataAddMensaje(msg);
+    renderChat();
+    msgInput.value = "";
+
+    // pequeña simulación: el admin puede responder automáticamente con baja prob.
+    setTimeout(() => {
+      if (Math.random() < 0.25) {
+        const reply = { from: "admin", text: "Gracias por tu mensaje. Te responderemos en breve.", time: new Date().toISOString() };
+        window.dataAddMensaje(reply);
+        renderChat();
+      }
+    }, 1200 + Math.random() * 2000);
+  });
+
+  // RENDER CHAT
+  function renderChat() {
+    chatBox.innerHTML = "";
+    const msgs = (window.dataStore.mensajes || []).slice(-200); // últimos 200
+    msgs.forEach(m => {
+      const div = document.createElement("div");
+      div.className = "msg " + (m.from === "usuario" ? "user" : "admin");
+      const t = new Date(m.time);
+      const timeStr = isNaN(t.getTime()) ? m.time : t.toLocaleTimeString();
+      div.innerHTML = `<div><small class="muted">[${escapeHtml(timeStr)}] ${escapeHtml(m.from)}</small></div><div>${escapeHtml(m.text)}</div>`;
+      chatBox.appendChild(div);
+    });
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  // Polling para refrescar chat si otro cliente (admin) escribe
+  setInterval(() => {
+    // recargar dataStore desde localStorage para detectar cambios por admin.html
+    try {
+      const raw = localStorage.getItem("numstore_data_v1");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        // actualizar solo mensajes y ventas localmente para reflejar cambios
+        if (JSON.stringify(parsed.mensajes) !== JSON.stringify(window.dataStore.mensajes)) {
+          window.dataStore.mensajes = parsed.mensajes;
+          renderChat();
+        }
+        if (JSON.stringify(parsed.ventas) !== JSON.stringify(window.dataStore.ventas)) {
+          window.dataStore.ventas = parsed.ventas;
+        }
+      }
+    } catch (e) {
+      console.error("Error en polling:", e);
+    }
+  }, 1200);
+
+  // Helpers
+  function getPlanById(id) {
+    return (window.dataStore.planes || []).find(p => p.id === id) || null;
+  }
+
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return "";
+    return String(str)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+});

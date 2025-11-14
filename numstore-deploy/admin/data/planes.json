@@ -1,0 +1,57 @@
+[
+  {
+    "id": 1,
+    "nombre": "E-Sim Full Privado",
+    "duracion": "De por vida",
+    "precio": 35,
+    "precioGuaranies": "250.000",
+    "activo": true,
+    "beneficios": [
+      "Duplicación de número telefónico manual",
+      "Reemplaza número existente de WhatsApp",
+      "Número completamente privado e inrastreable",
+      "VPN privado militar no rastreable",
+      "Compatible con WhatsApp y WhatsApp Business",
+      "Sin registros de chat, llamadas ni datos",
+      "Protección total contra rastreo",
+      "Activación anónima inmediata",
+      "+100 países seleccionables",
+      "Encriptación militar de extremo a extremo",
+      "Soporte confidencial 24/7"
+    ]
+  },
+  {
+    "id": 2,
+    "nombre": "E-Sim Privado Medio Pro",
+    "duracion": "3 meses",
+    "precio": 12,
+    "precioGuaranies": "110.000",
+    "activo": true,
+    "beneficios": [
+      "Número completamente privado",
+      "VPN privado avanzado no rastreable",
+      "Compatible con WhatsApp Business",
+      "Sin registros de chat ni llamadas",
+      "Protección contra rastreo de ubicación",
+      "Activación anónima inmediata",
+      "30 países disponibles",
+      "Encriptación de extremo a extremo"
+    ]
+  },
+  {
+    "id": 3,
+    "nombre": "E-Sim Privado Básico",
+    "duracion": "30 días",
+    "precio": 9.99,
+    "precioGuaranies": "70.000",
+    "activo": true,
+    "beneficios": [
+      "Número completamente privado",
+      "VPN integrado no rastreable",
+      "Compatible con WhatsApp",
+      "Sin registros de actividad",
+      "Activación anónima inmediata",
+      "Encriptación básica"
+    ]
+  }
+]

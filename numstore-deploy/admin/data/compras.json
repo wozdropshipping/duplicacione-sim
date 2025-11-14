@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "cliente": "Juan Pérez",
+    "email": "juan@ejemplo.com",
+    "plan": "E-Sim Full Privado",
+    "monto": "Gs. 250.000",
+    "fecha": "2025-11-12T09:15:00Z",
+    "estado": "pendiente",
+      "comprobante": "sample.svg",
+    "numero": "+595 21 123***",
+    "numeroCompleto": "+595 21 1234567"
+  }
+]

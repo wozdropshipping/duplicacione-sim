@@ -1,0 +1,63 @@
+// Simulación base de datos local con planes mejorados
+const dataStore = {
+  planes: [
+    {
+      id: 1,
+      nombre: "eSIM Express",
+      duracion: "7 días",
+      precio: 5,
+      ahorro: "0%",
+      validez: "Temporal",
+      beneficios: [
+        "Número eSIM único y estable",
+        "Compatible con WhatsApp y Telegram",
+        "Activación inmediata",
+        "Cobertura en más de 10 países"
+      ]
+    },
+    {
+      id: 2,
+      nombre: "Plan Global",
+      duracion: "30 días",
+      precio: 15,
+      ahorro: "10%",
+      validez: "Mensual",
+      beneficios: [
+        "Número internacional válido en 30 países",
+        "WhatsApp y Telegram habilitados",
+        "Ideal para viajes o negocios",
+        "Reemplazo gratuito si se bloquea"
+      ]
+    },
+    {
+      id: 3,
+      nombre: "eSIM Premium",
+      duracion: "90 días",
+      precio: 35,
+      ahorro: "20%",
+      validez: "Trimestral",
+      beneficios: [
+        "Número privado permanente",
+        "WhatsApp, Telegram y Twitter verificados",
+        "Soporte 24/7 y cambio de país gratis",
+        "Incluye modo multiusuario"
+      ]
+    },
+    {
+      id: 4,
+      nombre: "Plan Vitalicio",
+      duracion: "Ilimitado",
+      precio: 99,
+      ahorro: "40%",
+      validez: "De por vida",
+      beneficios: [
+        "Número eSIM libre de vencimiento",
+        "Compatible con todas las apps (WhatsApp, Telegram, Twitter, Signal)",
+        "Uso en 50+ países",
+        "Garantía de por vida y soporte prioritario"
+      ]
+    }
+  ],
+  mensajes: [],
+  ventas: []
+};
